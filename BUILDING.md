@@ -28,6 +28,36 @@ The build makes three files in `build/`:
 - On Linux x86-64 the toolchain runs natively. On macOS (or another CPU), Docker: the build runs
   each tool in a `linux/amd64` `debian:bookworm-slim` container. With podman, put a `docker` script
   that runs `exec podman "$@"` first on your PATH; `FM_JOBS` (default 4) limits parallel compiles.
+- On Windows, build inside WSL2 (see below). `./build.sh` in PowerShell does not run the build: Windows
+  hands the `.sh` file to whatever app is associated with it, usually an editor.
+
+### Windows: WSL2
+
+The toolchain is a Linux x86-64 program, and WSL2 runs it natively. In PowerShell (as administrator),
+once:
+
+```
+wsl --install -d Ubuntu          # then restart, and set up the Ubuntu user it asks for
+```
+
+Then, in the Ubuntu terminal (not PowerShell):
+
+```
+sudo apt update
+sudo apt install -y git curl xz-utils build-essential python3 python3-pil
+git clone https://github.com/GorchPortley/FM-303.git ~/FM-303
+cd ~/FM-303
+tests/run_tests.sh                 # the host tests first: no toolchain needed
+tools/get_toolchain.sh
+git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 \
+    https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git ~/fw-AC79_AIoT_SDK
+./build.sh
+```
+
+Clone into the Linux home directory (`~`), not under `/mnt/c`: builds there are slow, and a checkout
+made by Git for Windows may have CRLF line endings that break the scripts. WSL can't see the FM-1's
+USB MIDI port, so install from Windows (see Install below): Windows sees the build at
+`\\wsl$\Ubuntu\home\<you>\FM-303\build\`.
 
 ## Build
 
@@ -81,6 +111,11 @@ From the command line (`pip3 install mido python-rtmidi`):
 python3 tools/fm1_install.py build/fm303.fwsc
 python3 tools/fm1_install.py --info          # identity of the connected FM-1
 ```
+
+On Windows, run it with Windows' own Python (`py -m pip install mido python-rtmidi`, then
+`py tools\fm1_install.py \\wsl$\Ubuntu\home\<you>\FM-303\build\fm303.fwsc`), with nothing else
+(M-UPGRADE, a DAW) holding the FM-1's MIDI port. Run `--info` first: it shows that the FM-1 is found
+and what it runs, without writing anything.
 
 Or the web installer: `tools/make_pages.py build/fm303-X.Y.fwsc X.Y OUT_DIR` builds a static site
 with it (Chrome or Edge, WebMIDI), and `tools/publish_pages.sh X.Y` pushes it to the `gh-pages`

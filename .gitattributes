@@ -1,0 +1,7 @@
+# Keep LF line endings on every platform: the build scripts run under Linux (or WSL) and a CRLF
+# checkout from Git for Windows breaks them ("/bin/sh^M: bad interpreter").
+* text=auto eol=lf
+*.png binary
+*.ttf binary
+*.bin binary
+*.fwsc binary
