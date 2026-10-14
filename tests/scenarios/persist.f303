@@ -1,0 +1,22 @@
+# Saving: SAVE writes the patterns and the settings; a change saves itself a few seconds later while
+# stopped; a restart brings both back.
+expect store_writes 0
+tap SEQ
+tapkey 12
+expect pnote0 41
+expect dirty 1
+tap SAVE
+expect dirty 0
+expect store_writes 2
+tap HOME
+spin K1 5
+expect par0 41
+expect dirty 1
+wait 4500
+expect dirty 0
+expect store_writes 3
+reboot
+expect par0 41
+expect pnote0 41
+expect edit 0
+expect view 0

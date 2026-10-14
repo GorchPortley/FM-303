@@ -1,0 +1,97 @@
+# Writing a pattern the 303 way: PITCH mode (the notes, with accent and slide), then TIME mode (note,
+# tie, rest per step), then play it; copy it to another slot; clear it.
+tapkey w8
+expect edit 8
+expect len 16
+tap SEQ
+expect view 1
+# pitch mode: C2, D#2 accented, G2 sliding, C3, A#1 (the C4 key plays C2)
+tapkey 7
+press ENV
+tapkey 10
+release ENV
+press LFO
+tapkey 14
+release LFO
+tapkey 19
+tapkey 5
+expect pnote0 36
+expect pnote1 39
+expect pflag1 1
+expect pnote2 43
+expect pflag2 2
+expect pnote3 48
+expect pnote4 34
+expect pflag4 0
+expect pcur 5
+# ENV tapped alone flips the accent at the cursor (and does not write a note)
+tap ENV
+expect pflag5 1
+tap ENV
+expect pflag5 0
+expect pcur 5
+wait 300
+shot pitch.png
+# time mode: the black keys write NOTE (b0), TIE (b1), REST (b2) and step on
+tap SEQ
+expect view 2
+tap REC
+expect tcur 0
+keys b0 b1 b0 b2 b0 b0 b0 b2
+expect time0 1
+expect time1 2
+expect time2 1
+expect time3 0
+expect time7 0
+expect tcur 8
+spin K1 -8
+expect len 8
+# a white key turns its step NOTE > TIE > REST > NOTE
+tapkey w7
+expect time7 1
+tapkey w7
+expect time7 2
+tapkey w7
+expect time7 0
+tapkey w7
+expect time7 1
+# a white key past the end grows the pattern to it
+tapkey w9
+expect len 10
+spin K1 -2
+expect len 8
+spin K2 1
+expect triplet 1
+spin K2 -1
+expect triplet 0
+wait 300
+shot time.png
+# play it: 6 notes over 8 steps
+wav write.wav
+tap PLAY
+wait 3000
+expect loops >1
+tap PLAY
+wait 300
+wavstop
+expect peak_db_min -18
+# copy it to I 2B (SAVE held + white key on PLAY)
+tap HOME
+press SAVE
+tapkey w9
+release SAVE
+expect dirty 1
+expect patlen9 8
+expect patnote9 36
+expect edit 8
+# clear it: SAVE + REC twice, on PITCH or TIME
+tap SEQ
+press SAVE
+tap REC
+expect len 8
+tap REC
+release SAVE
+expect len 16
+expect time3 1
+expect pnote1 36
+expect patlen9 8

@@ -1,0 +1,29 @@
+# The screenshots in docs/img (tools: copied by hand from build/scenarios/screens/).
+# PLAY: I 2A playing, with I 3A..4A cued as a chain
+tapkey w1
+wait 200
+tap PLAY
+wait 1900
+key w2 down
+key w3 down
+key w3 up
+key w2 up
+wait 1400
+shot screen-play.png
+expect playing 1
+expect cue 2
+# PITCH and TIME on the pattern playing (2A: rests and ties)
+wait 1500
+tap SEQ
+spin K1 2
+wait 1500
+shot screen-pitch.png
+tap SEQ
+spin K3 4
+wait 1500
+shot screen-time.png
+tap FX
+wait 1500
+shot screen-sound.png
+tap PLAY
+expect playing 0

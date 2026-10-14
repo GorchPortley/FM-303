@@ -1,0 +1,54 @@
+# A first look and listen: the factory pattern I 1A playing, the next one cued, a chain,
+# the sound pages, a few knob turns. Screenshots and audio go to build/scenarios/first/.
+wav first.wav
+wait 300
+shot play.png
+expect view 0
+expect edit 0
+expect playing 0
+tap PLAY
+expect playing 1
+wait 2000
+expect gate 1
+expect cur 0
+shot playing.png
+# a white key while playing cues the pattern: it waits for the end of the bar
+tapkey w1
+expect edit 1
+expect cue 1
+expect cur 0
+wait 2400
+expect cue 255
+expect cur 1
+# hold 3A, press 4A: the chain 3A..4A
+key w2 down
+key w3 down
+key w3 up
+key w2 up
+expect lo 1
+wait 4500
+expect lo 2
+expect hi 3
+shot chain.png
+# turn the 303's knobs on PLAY: cutoff up, resonance down
+turn K1 10 20
+turn K2 -6 20
+expect par0 >36
+expect par1 <100
+wait 1000
+tap FX
+wait 100
+shot sound.png
+tap SEL
+wait 100
+shot more.png
+tap GLO
+wait 100
+shot setup.png
+tap HOME
+tap PLAY
+expect playing 0
+wait 600
+wavstop
+expect peak_db_max -0.05
+expect peak_db_min -14

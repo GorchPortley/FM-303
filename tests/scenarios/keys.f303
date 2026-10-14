@@ -1,0 +1,53 @@
+# The keyboard: KEYS on PLAY plays the 303 (legato over a held key slides), the octave, transposing a
+# running pattern from C4; MIDI notes in; MIDI clock in and out.
+tap ARP
+expect keyb 1
+key 7 down
+wait 50
+expect gate 1
+expect note 36
+key 9 down
+wait 50
+expect note 38
+key 9 up
+key 7 up
+wait 50
+expect gate 0
+tap OCT+
+expect oct 2
+tapkey 7
+expect note 48
+tap OCT-
+expect oct 1
+# playing: a key transposes from C4 (and does not play a note)
+tap PLAY
+wait 500
+expect clocks_out >20
+tapkey 12
+expect transpose 5
+wait 500
+tapkey 7
+expect transpose 0
+tap PLAY
+expect playing 0
+# MIDI in, channel 1, stopped: notes play (velocity 100 and up: accent)
+midi 90 2D 64
+wait 20
+expect note 45
+expect gate 1
+midi 80 2D 00
+wait 20
+expect gate 0
+# MIDI clock in: start, then 24 ticks at 20 ms (125 BPM) play one beat (steps 1..4)
+midi FA 00 00
+wait 2
+expect ext 1
+expect playing 1
+clockin 24 20
+expect step 3
+expect note 33
+midi FC 00 00
+wait 2
+expect playing 0
+wait 700
+expect ext 0
