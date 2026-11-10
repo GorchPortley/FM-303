@@ -507,10 +507,20 @@ static void key(int k, int down, uint32_t others)
                 }
             if (!painted) {                      /* else: the cursor, and a listen */
                 const chp_step_t *s;
+                chp_break_t *b = edb();
                 ui.cur = (uint8_t)st;
                 s = eds();
-                if (SRC_IS_SLICE(s->src))
-                    chp_audition(proj.brk, (s->src - SRC_SLICE) % (edb()->nsl ? edb()->nsl : 1));
+                if (SRC_IS_SLICE(s->src) && b->nsl)
+                    chp_audition(proj.brk, (s->src - SRC_SLICE) % b->nsl);
+                else if (SRC_IS_TYPE(s->src)) {  /* a type: one of its slices, a different one each time */
+                    int n = 0, k, sl;
+                    for (sl = 0; sl < b->nsl; sl++)
+                        n += b->tag[sl] == s->src;
+                    k = n ? (int)(ui.frame % (uint32_t)n) : -1;
+                    for (sl = 0; sl < b->nsl && k >= 0; sl++)
+                        if (b->tag[sl] == s->src && k-- == 0)
+                            chp_audition(proj.brk, sl);
+                }
             }
         } else if (bi >= 0 && down) {
             uint32_t i, any = 0;
@@ -1028,7 +1038,7 @@ static void draw_main(void)
     case V_SOUND: {
         static const char *const STAGE[] = {"PAULA", "CRUSH", "AMIGA", "DRIVE", "FILTER", "ECHO"};
         int on[6], i;
-        int32_t x = 8, y = 96;
+        int32_t x = 8, y = 104;
         on[0] = proj.par[P_INTERP] == 0;
         on[1] = proj.par[P_CRUSH] != 0;
         on[2] = proj.par[P_AMIGA] != 0;
@@ -1041,7 +1051,7 @@ static void draw_main(void)
             int32_t w = text_w(&FONT_XS, STAGE[i]) + 8;
             if (i == 3) {
                 x = 8;
-                y += 22;
+                y += 20;
             }
             cv_round(x, y, w, 18, 5, on[i] ? K_ACC : K_PANEL);
             cv_text(x + 4, y + 2, &FONT_XS, STAGE[i], on[i] ? K_DARK : K_DIM);

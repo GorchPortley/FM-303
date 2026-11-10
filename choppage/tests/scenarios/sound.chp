@@ -1,0 +1,78 @@
+# The sound chain at its extremes, and in between: Paula and clean playback, crush, the A500 and LED
+# filters, the three drive shapes, the DJ filter swept both ways at full resonance, the echo at full
+# feedback, the volume. Never silent, never out of range or NaN. Audio: sound.wav
+wav sound.wav
+wait 200
+tap PLAY
+wait 1500
+peakreset
+# crush all the way, then back
+spin K3 100
+wait 1200
+spin K3 -60
+# clean playback, then Paula again; the Amiga filters
+tap FX
+spin K3 1
+wait 600
+spin K3 -1
+spin K4 1
+wait 600
+spin K4 1
+wait 600
+spin K4 1
+wait 600
+spin K4 -3
+# drive: soft, hard, fold, all the way
+spin K1 100
+wait 600
+spin K2 1
+wait 600
+spin K2 1
+wait 600
+spin K1 -100
+spin K2 -2
+# echo, full feedback, every time
+tap FX
+spin K1 100
+spin K3 100
+spin K4 100
+wait 800
+spin K2 1
+wait 400
+spin K2 1
+wait 400
+spin K2 1
+wait 400
+spin K2 1
+wait 400
+spin K2 1
+wait 400
+spin K1 -100
+spin K3 -60
+# the DJ filter: down, up, at full resonance
+tap HOME
+turn K1 -64 20
+wait 800
+turn K1 128 20
+wait 800
+turn K1 -64 20
+# pitch and volume
+spin K2 24
+wait 600
+spin K2 -48
+wait 600
+spin K2 24
+tap GLO
+tap GLO
+spin K4 6
+wait 600
+spin K4 -30
+wait 600
+spin K4 24
+tap HOME
+tap PLAY
+wait 3000
+wavstop
+expect bad_samples 0
+expect peak_db_max 0.1
+expect peak_db_min -14

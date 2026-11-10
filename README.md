@@ -11,6 +11,11 @@ accent, slide and tie, four pattern groups of sixteen, cueing and chains, and MI
 > booted it yet. Building the installable package needs JieLi's toolchain and SDK (see
 > [BUILDING.md](BUILDING.md)). Don't flash it expecting a finished instrument.
 
+**Also in this repository:** [CHOPPAGE](choppage/README.md), a separate firmware for the FM-1 that
+chops drum breaks for jungle and breakcore (slices tagged kick / snare / hat / ghost, type steps that
+play a random hit of their kind, beat repeats, a generator, Amiga-style 8-bit playback). It shares
+Felucca's platform with FM-303 and nothing else; it has its own build, tools and tests in `choppage/`.
+
 How the FM-1 custom firmwares work, and where FM-303 comes from:
 [docs/RESEARCH.md](docs/RESEARCH.md). How FM-303 works inside, and what comes next:
 [docs/DESIGN.md](docs/DESIGN.md).

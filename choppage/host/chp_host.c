@@ -29,6 +29,7 @@
  *   expect WHAT VALUE            check state: exit 1 on mismatch; VALUE "<N" / ">N" is a bound
  *   reboot                       re-run boot from the simulated flash (persistence test)
  *   wipe                         erase the simulated flash (objects and samples)
+ * expect bad_samples counts output that is not finite or out of range.
  */
 #define FM_HOST 1
 #define _POSIX_C_SOURCE 199309L         /* clock_gettime under -std=c99 on Linux */
@@ -38,6 +39,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <time.h>
+#include <limits.h>
 #define __attribute__(x)
 
 /* ------------------------------------------------------------ screen --- */
@@ -353,6 +355,7 @@ static void wav_close(void)
 
 /* --------------------------------------------------------- the device --- */
 static double audio_due_ms, render_ns_total, render_budget_ns_total;
+static uint32_t bad_samples;
 static uint32_t ui_due;
 static double now_ns(void)
 {
@@ -391,6 +394,8 @@ static void run_ms(uint32_t ms)
             for (k = 0; k < 256; k++) {
                 float l = (float)blk[2 * k] / 8388608.0f, r = (float)blk[2 * k + 1] / 8388608.0f;
                 int16_t s[2];
+                if (!isfinite(l) || !isfinite(r) || blk[2 * k] == INT32_MIN || l > 1.01f || l < -1.01f)
+                    bad_samples++;            /* a filter blown up, an overflow */
                 if (fabsf(l) > peak_out)
                     peak_out = fabsf(l);
                 if (fabsf(r) > peak_out)
@@ -676,6 +681,8 @@ static int expect(const char *what, const char *val)
         got = (int)sx_acks_err;
     else if (!strcmp(what, "sx_replies"))
         got = (int)sx_replies;
+    else if (!strcmp(what, "bad_samples"))           /* non-finite or out of range output */
+        got = (int)bad_samples;
     else if (!strcmp(what, "held"))
         got = chp_held;
     else if (!strncmp(what, "par", 3))                /* parN: parameter N (chp.h P_*) */
