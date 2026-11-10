@@ -157,7 +157,7 @@ static int src_tag(int src)                      /* the colour a step source dra
 {
     if (SRC_IS_TYPE(src))
         return src;
-    if (SRC_IS_SLICE(src) && edb()->len) {
+    if (SRC_IS_SLICE(src) && edb()->len && edb()->nsl) {
         int s = (src - SRC_SLICE) % edb()->nsl;
         return edb()->tag[s];
     }

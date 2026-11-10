@@ -472,6 +472,7 @@ static struct {
 } live = {-1, 0, 0, 0, 0, -1, 0.0f};
 
 static uint16_t perf;                               /* held perform fx */
+static uint8_t ext_start;                           /* MIDI start came: the next tick is step 1 */
 static uint8_t rstack[8], rdepth;                   /* repeat keys, in the order pressed */
 static const float REP_W[NPERF] = {2.0f, 1.0f, 0.5f, 0.25f, 2.0f / 3.0f, 0, 0, 0, 4.0f, 0, 0};
 static struct {
@@ -513,7 +514,7 @@ static int pick(int tag, uint32_t key, int *pb, int *ps)
     }
     if (!n) {                                       /* nothing tagged: any slice of the break */
         const chp_break_t *kb = &brks[cur_brk];
-        if (!kb->len)
+        if (!kb->len || !kb->nsl)
             return 0;
         *pb = cur_brk;
         *ps = (int)(gen_hash(seed, key) % kb->nsl);
@@ -541,7 +542,7 @@ static int resolve(int src, uint32_t key, int *pb, int *ps)
 {
     const chp_break_t *k = &brks[cur_brk];
     if (SRC_IS_SLICE(src)) {
-        if (!k->len)
+        if (!k->len || !k->nsl)
             return 0;
         *pb = cur_brk;
         *ps = (src - SRC_SLICE) % k->nsl;           /* a pattern written for more slices wraps */
@@ -549,7 +550,7 @@ static int resolve(int src, uint32_t key, int *pb, int *ps)
     }
     if (SRC_IS_TYPE(src))
         return pick(src, key, pb, ps);
-    if (src == SRC_ANY && k->len) {
+    if (src == SRC_ANY && k->len && k->nsl) {
         *pb = cur_brk;
         *ps = (int)(rnd() % k->nsl);
         return 1;
@@ -1086,6 +1087,13 @@ static float shape(float x)
 }
 
 /* --------------------------------------------------------------------- init --- */
+static void zero(void *p, uint32_t n)                /* no libc in the DSP units */
+{
+    uint8_t *b = p;
+    while (n--)
+        *b++ = 0;
+}
+
 static void apply(int i, int v)
 {
     if (i < 0 || i >= P_NPARAMS)
@@ -1114,6 +1122,20 @@ void chp_init(chp_pattern_t *bk, chp_break_t *b, const uint8_t *m)
     for (i = 0; i < P_NPARAMS; i++)
         apply(i, PARAMS[i].def);
     svf_coef(3090.0f, 1.41421356f, &led_a1, &led_a2, &led_a3);   /* the LED filter: Butterworth */
+    zero(&sq, sizeof sq);                            /* everything that runs, from scratch */
+    zero(ch, sizeof ch);
+    zero(lane, sizeof lane);
+    zero(&rep, sizeof rep);
+    zero(&shadow, sizeof shadow);
+    zero(&live, sizeof live);
+    perf = 0;
+    rdepth = 0;
+    held = rec_on = 0;
+    cur_brk = 0;
+    ext_start = 0;
+    dj = led = (svf_t){0.0f, 0.0f};
+    rc = cr_acc = cr_hold = dj_f = 0.0f;
+    gate_g = 1.0f;
     sq.pat = 0;
     sq.cue = CHP_NONE;
     sq.len = FSR * 60.0f / (165.0f * 4.0f);
@@ -1124,8 +1146,6 @@ void chp_init(chp_pattern_t *bk, chp_break_t *b, const uint8_t *m)
 }
 
 /* ------------------------------------------------------------------- render --- */
-static uint8_t ext_start;                            /* MIDI start came: the next tick is step 1 */
-
 static void clock_msg(int msg)                       /* MIDI clock in: six ticks a step */
 {
     sq.ext = 1;
@@ -1200,8 +1220,8 @@ static void drain(void)
         m = q[q_r % QN];
         BARRIER();
         q_r++;
-        if (held && m.c != C_HOLD && m.c != C_SET)
-            continue;
+        if (held && (m.c == C_PLAY || m.c == C_LIVE || m.c == C_PERF || m.c == C_AUD || m.c == C_CLOCK))
+            continue;                                /* held: nothing plays; selections still count */
         switch (m.c) {
         case C_SET:
             apply(m.a, m.b);

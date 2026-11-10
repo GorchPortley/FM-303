@@ -465,6 +465,9 @@ int store_begin(int slot, uint32_t len, uint32_t rate, int fmt, int beats, const
     for (k = 0; k < sizeof b->name && b->name[k]; k++)
         if (b->name[k] < 32 || b->name[k] > 126)
             b->name[k] = '?';
+    b->nsl = 1;                                      /* a table that holds until the cut: one slice */
+    b->start[0] = 0;
+    b->tag[0] = TAG_NONE;
     if (b->off < rx_lo)
         rx_lo = b->off;
     used += len;
