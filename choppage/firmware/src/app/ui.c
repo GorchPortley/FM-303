@@ -500,14 +500,15 @@ static void key(int k, int down, uint32_t others)
             uint32_t i, painted = 0;
             if (st >= len)
                 return;
-            ui.cur = (uint8_t)st;
             for (i = 0; i < 11u; i++)            /* a type key held: paint the step with it */
                 if ((ui.keys >> BLACK_K[i]) & 1u) {
-                    step_key(eds(), (int)i);
+                    step_key(&edp()->st[st], (int)i);
                     painted = 1;
                 }
-            if (!painted) {
-                const chp_step_t *s = eds();
+            if (!painted) {                      /* else: the cursor, and a listen */
+                const chp_step_t *s;
+                ui.cur = (uint8_t)st;
+                s = eds();
                 if (SRC_IS_SLICE(s->src))
                     chp_audition(proj.brk, (s->src - SRC_SLICE) % (edb()->nsl ? edb()->nsl : 1));
             }

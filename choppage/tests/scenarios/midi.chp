@@ -1,0 +1,25 @@
+# MIDI in: clock (24 a beat) leads, start and stop; notes from C2 play slices; program change cues.
+wait 200
+midi FA 00 00
+clockin 96 21
+expect ext 1
+expect playing 1
+midi 90 24 64
+wait 30
+expect vslice 0
+midi 80 24 00
+midi 90 2B 7F
+wait 30
+expect vslice 7
+midi 80 2B 00
+# pattern 1 is 32 steps: the cue waits for its end
+midi C0 05 00
+wait 10
+expect cue 5
+clockin 120 21
+expect cur 5
+midi FC 00 00
+wait 20
+expect playing 0
+wait 800
+expect ext 0

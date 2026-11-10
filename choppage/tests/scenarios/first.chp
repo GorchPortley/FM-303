@@ -1,0 +1,52 @@
+# A first look and listen: the factory break straight, the two-step in types, every view.
+# Screenshots and audio go to build/scenarios/first/.
+wav first.wav
+wait 300
+expect view 0
+expect pat 0
+expect nbreaks 3
+expect factory 1
+expect playing 0
+shot boot.png
+tap PLAY
+expect playing 1
+wait 2500
+expect cur 0
+shot play.png
+# PRESETS: the next pattern, cued to the end of this one
+turn PRESET 1
+expect pat 1
+expect cue 1
+wait 3200
+expect cur 1
+expect cue 255
+shot play-twostep.png
+tap SEQ
+wait 100
+shot step.png
+tap SEQ
+wait 100
+expect page 1
+shot step-2.png
+tap EDIT
+wait 100
+shot slice.png
+tap SEL
+wait 100
+shot breaks.png
+tap ARP
+wait 100
+shot gen.png
+tap FX
+wait 100
+shot sound.png
+tap GLO
+wait 100
+shot setup.png
+tap HOME
+tap PLAY
+expect playing 0
+wait 600
+wavstop
+expect peak_db_max -0.05
+expect peak_db_min -14

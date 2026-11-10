@@ -1,0 +1,62 @@
+# Writing steps: a black type key held while white steps are tapped paints them; a black key alone
+# writes at the cursor; the knobs edit the step; SAVE + REC twice clears the pattern.
+wait 200
+# pattern 10 (index 9): the stepper, 16 steps
+turn PRESET 9
+expect pat 9
+tap SEQ
+expect view 1
+tapkey w3
+expect cursor 3
+# K held, steps 6 and 10 tapped: kicks
+key b0 down
+tapkey w6
+tapkey w10
+key b0 up
+expect src6 1
+expect src10 1
+# S at the cursor (step 4)
+tapkey b1
+expect src3 2
+# again: off
+tapkey b1
+expect src3 0
+# ghost, then roll and reverse at the cursor
+tapkey b3
+expect src3 4
+tapkey b6
+tapkey b6
+expect fx3 2
+tapkey b5
+expect fx3 10
+# the knobs: Src to slice 1 (7), pitch +5, roll off
+spin K1 3
+expect src3 7
+spin K2 5
+spin K3 -2
+expect fx3 8
+wait 50
+shot step-edit.png
+tap SEQ
+expect page 1
+# Chance and Gate
+spin K3 -50
+spin K4 2
+wait 50
+shot step-edit-2.png
+# the length: GEN's second page
+tap ARP
+tap ARP
+spin K1 16
+expect len 32
+spin K1 -20
+expect len 12
+# clear: SAVE + REC, twice
+tap SEQ
+press SAVE
+tap REC
+tap REC
+release SAVE
+expect src0 0
+expect src6 0
+expect dirty 1

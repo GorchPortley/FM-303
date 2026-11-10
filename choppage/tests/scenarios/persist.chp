@@ -1,0 +1,41 @@
+# What is saved comes back: tempo, a sound setting, the break and pattern selected, an edited step,
+# an edited tag; SAVE, then a reboot.
+wait 200
+spin SELECT 10
+expect par0 175
+tap FX
+spin K1 40
+expect par6 40
+turn PRESET 3
+press LFO
+tapkey w2
+release LFO
+expect brk 2
+tap SEQ
+key b1 down
+tapkey w1
+key b1 up
+expect src1 2
+tap EDIT
+tapkey w2
+tapkey b3
+expect tag2 4
+tap SAVE
+expect dirty 0
+expect store_writes >2
+reboot
+wait 200
+expect par0 175
+expect par6 40
+expect pat 3
+expect brk 2
+expect src1 2
+expect tag2 4
+# autosave: a change, then quiet for a few seconds while stopped
+spin SELECT -5
+expect dirty 1
+wait 5000
+expect dirty 0
+reboot
+wait 200
+expect par0 170

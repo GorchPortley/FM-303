@@ -173,7 +173,15 @@ def resample(x, src, dst):
         return list(np.interp(t, np.arange(len(a)), a))
     except ImportError:
         pass
-    if dst < src:                                        # without numpy: two one-pole lowpasses
+    return resample_simple(x, src, dst)
+
+
+def resample_simple(x, src, dst):
+    """without numpy: two one-pole lowpasses, then linear (web/chp_proto.js resampleSimple too)"""
+    if src == dst:
+        return list(x)
+    n_out = int(len(x) * dst / src)
+    if dst < src:
         c = 1.0 - math.exp(-2 * math.pi * 0.42 * dst / src)
         s1 = s2 = 0.0
         y = []
@@ -221,7 +229,7 @@ def to_bytes(x, fmt, dither=False, seed=1):
             r1 = rnd / 0x7FFFFFFF
             rnd = (rnd * 1103515245 + 12345) & 0x7FFFFFFF
             q += r1 - rnd / 0x7FFFFFFF
-        q = int(round(q))
+        q = int(math.floor(q + 0.5))                     # halves up, as the browser loader rounds
         out[i] = max(-127, min(127, q)) & 0xFF
     return bytes(out)
 

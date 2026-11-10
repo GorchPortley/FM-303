@@ -1,0 +1,20 @@
+# Recording: REC on, the keys play slices into the pattern on the steps they land on (quantized:
+# a press late in step 1 goes to step 2).
+wait 200
+turn PRESET 10
+expect pat 10
+tap REC
+expect rec 1
+tap PLAY
+wait 30
+key w7 down
+wait 120
+key w7 up
+wait 3000
+expect src1 14
+expect src0 1
+tap PLAY
+tap REC
+expect rec 0
+expect dirty 1
+shot record.png

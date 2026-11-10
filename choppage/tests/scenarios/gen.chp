@@ -1,0 +1,38 @@
+# The generator: a white key writes a new pattern in the style (each key its own dice), ENV takes it
+# back, the black keys pick the style; AUTO on PLAY varies the pattern every bar. Audio: gen.wav
+wav gen.wav
+wait 200
+turn PRESET 1
+tap ARP
+expect view 4
+expect par16 1
+tapkey w0
+expect patlen1 16
+expect src0 1
+expect src4 2
+shot gen-jungle.png
+# breakcore
+tapkey b4
+expect par16 4
+tapkey w3
+shot gen-breakcore.png
+# undo
+tap ENV
+# straight
+tapkey b0
+expect par16 0
+tapkey w1
+expect src0 7
+# AUTO (PLAY, KNOB 4): a variation every bar
+tap HOME
+spin K4 80
+expect par4 80
+tap PLAY
+wait 2000
+expect work 1
+shot play-auto.png
+wait 2000
+tap PLAY
+wait 300
+wavstop
+expect peak_db_min -14

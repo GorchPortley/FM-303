@@ -5,8 +5,15 @@
 #   tools/publish_pages.sh 0.1-beta          (after ./build.sh --release 0.1-beta)
 set -e
 cd "$(dirname "$0")/.."
+# the gh-pages branch is the repository's one site: while CHOPPAGE lives in a subdirectory of another
+# project (FM-303), publishing here would replace that project's site
+if [ "$(git rev-parse --show-toplevel)" != "$(pwd -P)" ] && [ "${PAGES_FORCE:-0}" != 1 ]; then
+    echo "publish_pages.sh: CHOPPAGE is not the top of this repository; its gh-pages would replace the"
+    echo "other project's site. Move CHOPPAGE to its own repository (see BUILDING.md), or set PAGES_FORCE=1."
+    exit 1
+fi
 V="${1:?usage: tools/publish_pages.sh VERSION}"
-PKG="build/fm303-$V.fwsc"
+PKG="build/choppage-$V.fwsc"
 [ -f "$PKG" ] || { echo "no $PKG: run ./build.sh --release $V first"; exit 1; }
 python3 tools/make_pages.py "$PKG" "$V" build/pages
 REMOTE="$(git remote get-url origin)"
@@ -15,7 +22,7 @@ cd build/pages
 rm -rf .git
 git init -q -b gh-pages
 git add -A
-git commit -q -m "Site for FM-303 $V (from $SHA)"
+git commit -q -m "Site for CHOPPAGE $V (from $SHA)"
 git push -q -f "$REMOTE" gh-pages
 rm -rf .git
 # ask GitHub Pages to build it now: a push alone has left the first deploy stuck on "building"

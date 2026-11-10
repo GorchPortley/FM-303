@@ -1,0 +1,41 @@
+# Editing the break: slices played and picked from the keys, tagged from the black keys, a cut
+# moved by a few ms; then another cut (EDIT again: Hits), and the tags again by ear (REC).
+wait 200
+tap EDIT
+expect view 2
+expect nsl 32
+tapkey w5
+expect scur 5
+expect vslice 5
+# tag it as a snare, a ghost, back to a hat
+tapkey b1
+expect tag5 2
+tapkey b3
+expect tag5 4
+tapkey b2
+expect tag5 3
+spin K3 -2
+expect tag5 1
+spin K2 4
+wait 50
+shot slice-edit.png
+# Beats
+spin K4 -4
+expect beats 4
+spin K4 4
+expect beats 8
+# the cut: Hits (the hits found), then 16, then Auto again
+tap EDIT
+expect page 1
+spin K1 4
+expect nsl <32
+wait 50
+shot slice-hits.png
+spin K1 -2
+expect nsl 16
+spin K1 -2
+expect nsl 32
+# tags by ear
+tap REC
+expect tag0 1
+expect dirty 1
